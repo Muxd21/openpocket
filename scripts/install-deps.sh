@@ -8,8 +8,18 @@ log_fail() { echo -e "${RED}[FAIL]${NC} $1"; }
 log_info() { echo -e "${CYAN}[INFO]${NC} $1"; }
 
 log_info "Updating package repositories..."
-pkg update -y 2>/dev/null || { echo "Retrying..."; yes | pkg update; }
-pkg upgrade -y 2>/dev/null || true
+# Avoid interactive prompts during apt/pkg installation
+export DEBIAN_FRONTEND=noninteractive
+APT_OPTS="-y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
+
+if pkg update $APT_OPTS; then
+    log_ok "Update success"
+else
+    log_warn "Update failed, trying with yes | pkg update"
+    yes | pkg update || true
+fi
+
+pkg upgrade $APT_OPTS || true
 
 PACKAGES=(
   nodejs-lts    # Node.js LTS runtime (>= 22) + npm
@@ -29,7 +39,8 @@ for pkg_name in "${PACKAGES[@]}"; do
   if dpkg -s "$pkg_name" &>/dev/null; then
     log_ok "$pkg_name (already installed)"
   else
-    if pkg install -y "$pkg_name" 2>/dev/null; then
+    log_info "Installing $pkg_name..."
+    if pkg install $APT_OPTS "$pkg_name"; then
       log_ok "$pkg_name installed"
     else
       log_fail "$pkg_name failed to install"
