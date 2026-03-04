@@ -110,11 +110,13 @@ fi
 # No need to source ~/.bashrc which can be unstable.
 
 log_info "Installing OpenClaw (this may take 5-15 minutes)..."
-if npm install -g openclaw@latest; then
-  log_ok "OpenClaw installed: $(openclaw --version 2>/dev/null || echo 'unknown')"
+npm install -g openclaw@latest || log_warn "OpenClaw install process returned non-zero. Attempting to continue..."
+
+if command -v openclaw &>/dev/null; then
+  log_ok "OpenClaw version: $(openclaw --version 2>/dev/null || echo 'unknown')"
 else
-  log_fail "OpenClaw installation failed"
-  exit 1
+  log_fail "OpenClaw binary not found after install"
+  # Don't exit here, mission control might still work
 fi
 
 # Apply patches
@@ -143,13 +145,10 @@ fi
 
 if [ -d "$HOME/mission-control" ]; then
   cd "$HOME/mission-control"
-  if pnpm install; then
-     log_ok "Mission Control dependencies installed"
-     if [ ! -f ".env" ]; then
-       cp .env.example .env 2>/dev/null || true
-     fi
-  else
-     log_warn "Mission Control pnpm install failed"
+  log_info "Running pnpm install for Mission Control..."
+  pnpm install || log_warn "pnpm install returned non-zero"
+  if [ ! -f ".env" ]; then
+    cp .env.example .env 2>/dev/null || true
   fi
   cd - >/dev/null
 fi
