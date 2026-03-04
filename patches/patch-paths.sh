@@ -13,36 +13,15 @@ if [ ! -d "$OPENCLAW_DIR" ]; then
   exit 1
 fi
 
-PATCHED=0
+# Efficiently patch /tmp, /bin/sh, /bin/bash, and /usr/bin/env to Termux equivalents
+log_info "Scanning and patching OpenClaw files..."
 
-# Patch /tmp → $PREFIX/tmp
-find "$OPENCLAW_DIR" -name "*.js" -o -name "*.mjs" | while read -r file; do
-  if grep -q '"/tmp"' "$file" 2>/dev/null || grep -q "'/tmp'" "$file" 2>/dev/null; then
-    sed -i "s|\"\/tmp\"|\"$PREFIX/tmp\"|g" "$file"
-    sed -i "s|'\/tmp'|'$PREFIX/tmp'|g" "$file"
-    PATCHED=$((PATCHED + 1))
-  fi
-done
-
-# Patch /bin/sh → $PREFIX/bin/sh
-find "$OPENCLAW_DIR" -name "*.js" -o -name "*.mjs" | while read -r file; do
-  if grep -q '"/bin/sh"' "$file" 2>/dev/null; then
-    sed -i "s|\"\/bin\/sh\"|\"$PREFIX/bin/sh\"|g" "$file"
-  fi
-done
-
-# Patch /bin/bash → $PREFIX/bin/bash
-find "$OPENCLAW_DIR" -name "*.js" -o -name "*.mjs" | while read -r file; do
-  if grep -q '"/bin/bash"' "$file" 2>/dev/null; then
-    sed -i "s|\"\/bin\/bash\"|\"$PREFIX/bin/bash\"|g" "$file"
-  fi
-done
-
-# Patch /usr/bin/env → $PREFIX/bin/env
-find "$OPENCLAW_DIR" -name "*.js" -o -name "*.mjs" | while read -r file; do
-  if grep -q '"/usr/bin/env"' "$file" 2>/dev/null; then
-    sed -i "s|\"\/usr\/bin\/env\"|\"$PREFIX/bin/env\"|g" "$file"
-  fi
-done
+# Use a single find/xargs/sed pass for speed and reliability
+find "$OPENCLAW_DIR" -type f \( -name "*.js" -o -name "*.mjs" -o -name "*.json" \) -print0 | xargs -0 sed -i \
+  -e "s|\"/tmp\"|\"$PREFIX/tmp\"|g" \
+  -e "s|'/tmp'|'$PREFIX/tmp'|g" \
+  -e "s|\"/bin/sh\"|\"$PREFIX/bin/sh\"|g" \
+  -e "s|\"/bin/bash\"|\"$PREFIX/bin/bash\"|g" \
+  -e "s|\"/usr/bin/env\"|\"$PREFIX/bin/env\"|g" 2>/dev/null || true
 
 log_ok "Path patches applied"
