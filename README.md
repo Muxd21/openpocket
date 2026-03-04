@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="docs/images/banner.png" alt="OpenClaw Pocket Server" width="100%">
-
 # ⚡ OpenClaw Pocket Server
 
 **Your old phone → a 24/7 AI powerhouse. One command. No Linux distro. No bloat.**
