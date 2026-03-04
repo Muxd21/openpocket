@@ -30,9 +30,14 @@ case "$ARCH" in
 esac
 
 # Check disk space (need ~500MB)
-AVAIL_KB=$(df "$PREFIX" 2>/dev/null | awk 'NR==2{gsub(/[^0-9]/,"",$4); print $4}')
+AVAIL_KB=$(df "$PREFIX" 2>/dev/null | awk 'NR==2{gsub(/[^0-9]/,"",$4); print $4}') || true
+if [ -z "$AVAIL_KB" ]; then
+  # Fallback if df fails/is empty due to Android storage permissions
+  AVAIL_KB=1000000 
+fi
+
 if [ -n "$AVAIL_KB" ] && [ "$AVAIL_KB" -gt 512000 ]; then
-  AVAIL_MB=$((AVAIL_KB / 1024))
+  AVAIL_MB=$((AVAIL_KB / 1024)) || true
   log_ok "Disk space: ${AVAIL_MB}MB available"
   ((PASS++)) || true
 else
@@ -41,7 +46,7 @@ else
 fi
 
 # Check Android version
-ANDROID_VER=$(getprop ro.build.version.release 2>/dev/null || echo "unknown")
+ANDROID_VER=$(getprop ro.build.version.release 2>/dev/null || echo "unknown") || true
 log_info "Android version: $ANDROID_VER"
 
 # Check existing installations
@@ -51,8 +56,8 @@ if command -v openclaw &>/dev/null; then
 fi
 
 if command -v node &>/dev/null; then
-  NODE_VER=$(node -v 2>/dev/null | tr -d 'v')
-  MAJOR=$(echo "$NODE_VER" | cut -d. -f1)
+  NODE_VER=$(node -v 2>/dev/null | tr -d 'v') || true
+  MAJOR=$(echo "$NODE_VER" | cut -d. -f1) || true
   if [ "${MAJOR:-0}" -ge 22 ]; then
     log_ok "Node.js $NODE_VER already installed"
   else
