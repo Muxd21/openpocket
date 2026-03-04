@@ -81,6 +81,12 @@ export TMPDIR="$PREFIX/tmp"
 export NODE_OPTIONS="-r $HOME/.openclaw-android/patches/bionic-compat.js"
 export OPENCLAW_NODE_OPTIONS_READY=1
 export CONTAINER=1
+export CXXFLAGS="-include $HOME/.openclaw-android/patches/termux-compat.h"
+export CFLAGS="-include $HOME/.openclaw-android/patches/termux-compat.h"
+export CMAKE_CXX_FLAGS="-include $HOME/.openclaw-android/patches/termux-compat.h"
+export CMAKE_C_FLAGS="-include $HOME/.openclaw-android/patches/termux-compat.h"
+export GYP_DEFINES="OS=linux android_ndk_path=''"
+export CPATH="$PREFIX/include/glib-2.0:$PREFIX/lib/glib-2.0/include:${CPATH:-}"
 
 # ──────────────────────────────────────────────
 #  STEP 4: Install OpenClaw + Apply Patches
@@ -100,7 +106,8 @@ if [ ! -f "$PREFIX/include/spawn.h" ]; then
   log_ok "spawn.h installed"
 fi
 
-source ~/.bashrc 2>/dev/null || true
+# Environment variables already exported in Step 3.
+# No need to source ~/.bashrc which can be unstable.
 
 log_info "Installing OpenClaw (this may take 5-15 minutes)..."
 if npm install -g openclaw@latest; then
