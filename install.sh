@@ -100,11 +100,9 @@ mkdir -p "$PATCH_DEST"
 cp "$SCRIPT_DIR/patches/bionic-compat.js" "$PATCH_DEST/"
 cp "$SCRIPT_DIR/patches/termux-compat.h"  "$PATCH_DEST/"
 
-# Copy spawn.h if missing
-if [ ! -f "$PREFIX/include/spawn.h" ]; then
-  cp "$SCRIPT_DIR/patches/spawn.h" "$PREFIX/include/spawn.h"
-  log_ok "spawn.h installed"
-fi
+# Update spawn.h (crucial for native builds like koffi)
+cp "$SCRIPT_DIR/patches/spawn.h" "$PREFIX/include/spawn.h"
+log_ok "spawn.h updated"
 
 # Environment variables already exported in Step 3.
 # No need to source ~/.bashrc which can be unstable.
