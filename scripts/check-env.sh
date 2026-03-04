@@ -30,8 +30,8 @@ case "$ARCH" in
 esac
 
 # Check disk space (need ~500MB)
-AVAIL_KB=$((df "$PREFIX" 2>/dev/null || echo "") | awk 'NR==2{print $4}')
-if [ "${AVAIL_KB:-0}" -gt 512000 ]; then
+AVAIL_KB=$(df "$PREFIX" 2>/dev/null | awk 'NR==2{gsub(/[^0-9]/,"",$4); print $4}' || echo "")
+if [ -n "$AVAIL_KB" ] && [ "$AVAIL_KB" -eq "$AVAIL_KB" ] 2>/dev/null && [ "$AVAIL_KB" -gt 512000 ]; then
   AVAIL_MB=$((AVAIL_KB / 1024))
   log_ok "Disk space: ${AVAIL_MB}MB available"
   ((PASS++)) || true
