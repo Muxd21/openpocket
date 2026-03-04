@@ -74,7 +74,13 @@ bash "$SCRIPT_DIR/scripts/install-deps.sh" || { log_fail "Dependency install fai
 # ──────────────────────────────────────────────
 step "3/$TOTAL_STEPS" "Configuring Environment"
 bash "$SCRIPT_DIR/scripts/setup-env.sh" || { log_fail "Environment setup failed"; exit 1; }
-source ~/.bashrc 2>/dev/null || true
+
+# Manually load the critical vars for the rest of the install process
+# to avoid potential set -u / set -e crashes from sourcing a user's full .bashrc
+export TMPDIR="$PREFIX/tmp"
+export NODE_OPTIONS="-r $HOME/.openclaw-android/patches/bionic-compat.js"
+export OPENCLAW_NODE_OPTIONS_READY=1
+export CONTAINER=1
 
 # ──────────────────────────────────────────────
 #  STEP 4: Install OpenClaw + Apply Patches

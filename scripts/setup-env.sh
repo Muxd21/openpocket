@@ -44,7 +44,7 @@ export GYP_DEFINES="OS=linux android_ndk_path=''"
 export OPENCLAW_NODE_OPTIONS_READY=1
 
 # glib/vips headers for sharp builds
-export CPATH="\$PREFIX/include/glib-2.0:\$PREFIX/lib/glib-2.0/include:\$CPATH"
+export CPATH="\$PREFIX/include/glib-2.0:\$PREFIX/lib/glib-2.0/include:\${CPATH:-}"
 $MARKER_END
 EOF
 
