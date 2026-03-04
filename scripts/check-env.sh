@@ -14,7 +14,7 @@ FAIL=0
 # Check Termux
 if [ -n "${PREFIX:-}" ] && [[ "$PREFIX" == */com.termux/* ]]; then
   log_ok "Running in Termux"
-  ((PASS++))
+  ((PASS++)) || true
 else
   log_fail "Not running in Termux. This script requires Termux."
   exit 1
@@ -23,21 +23,21 @@ fi
 # Check architecture
 ARCH=$(uname -m)
 case "$ARCH" in
-  aarch64|arm64) log_ok "Architecture: $ARCH (optimal)"; ((PASS++)) ;;
-  armv7l|armv8l) log_warn "Architecture: $ARCH (supported, aarch64 recommended)"; ((PASS++)) ;;
-  x86_64)        log_warn "Architecture: $ARCH (emulator detected)"; ((PASS++)) ;;
-  *)             log_fail "Architecture: $ARCH (unsupported)"; ((FAIL++)) ;;
+  aarch64|arm64) log_ok "Architecture: $ARCH (optimal)"; ((PASS++)) || true ;;
+  armv7l|armv8l) log_warn "Architecture: $ARCH (supported, aarch64 recommended)"; ((PASS++)) || true ;;
+  x86_64)        log_warn "Architecture: $ARCH (emulator detected)"; ((PASS++)) || true ;;
+  *)             log_fail "Architecture: $ARCH (unsupported)"; ((FAIL++)) || true ;;
 esac
 
 # Check disk space (need ~500MB)
-AVAIL_KB=$(df "$PREFIX" 2>/dev/null | awk 'NR==2{print $4}')
+AVAIL_KB=$((df "$PREFIX" 2>/dev/null || echo "") | awk 'NR==2{print $4}')
 if [ "${AVAIL_KB:-0}" -gt 512000 ]; then
   AVAIL_MB=$((AVAIL_KB / 1024))
   log_ok "Disk space: ${AVAIL_MB}MB available"
-  ((PASS++))
+  ((PASS++)) || true
 else
   log_fail "Insufficient disk space. Need at least 500MB free."
-  ((FAIL++))
+  ((FAIL++)) || true
 fi
 
 # Check Android version

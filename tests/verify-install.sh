@@ -9,20 +9,20 @@ PASS=0; FAIL=0; WARN=0
 check() {
   if eval "$2" &>/dev/null; then
     echo -e "${GREEN}[PASS]${NC} $1"
-    ((PASS++))
+    ((PASS++)) || true
   else
     echo -e "${RED}[FAIL]${NC} $1"
-    ((FAIL++))
+    ((FAIL++)) || true
   fi
 }
 
 warn_check() {
   if eval "$2" &>/dev/null; then
     echo -e "${GREEN}[PASS]${NC} $1"
-    ((PASS++))
+    ((PASS++)) || true
   else
     echo -e "${YELLOW}[WARN]${NC} $1"
-    ((WARN++))
+    ((WARN++)) || true
   fi
 }
 
