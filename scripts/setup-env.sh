@@ -6,11 +6,11 @@ RED='\033[0;31m'; GREEN='\033[0;32m'; NC='\033[0m'
 log_ok() { echo -e "${GREEN}[OK]${NC}   $1"; }
 
 BASHRC="$HOME/.bashrc"
-MARKER_START="# >>> OpenClaw Pocket Server >>>"
-MARKER_END="# <<< OpenClaw Pocket Server <<<"
+MARKER_START="# >>> OpenPocket >>>"
+MARKER_END="# <<< OpenPocket <<<"
 
 # Remove existing block if present
-if grep -q "$MARKER_START" "$BASHRC" 2>/dev/null; then
+if [ -f "$BASHRC" ] && grep -q "$MARKER_START" "$BASHRC"; then
   sed -i "/$MARKER_START/,/$MARKER_END/d" "$BASHRC"
   log_ok "Removed old environment block"
 fi
@@ -56,3 +56,5 @@ mkdir -p "$HOME/.openclaw-android/patches" 2>/dev/null || true
 mkdir -p "$HOME/.openclaw" 2>/dev/null || true
 
 log_ok "Directories created"
+
+exit 0
