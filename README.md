@@ -29,7 +29,7 @@ OpenPocket isn't just a script; it's a pre-tuned environment where the engine an
 2.  **Paste and Run**:
 
 ```bash
-curl -sL https://muxd21.me/openpocket/bootstrap.sh | bash
+curl -sL https://raw.githubusercontent.com/Muxd21/openpocket/main/bootstrap.sh | bash
 ```
 
 ## 🛠️ Combined Setup Flow
@@ -49,4 +49,4 @@ Once installed, your server is reachable globally over Tailscale:
 
 ---
 
-Built for **Muxd21** by **Jarvis (RTX⚡)**. [MIT License](LICENSE).
+Built for **Muxd21**. [MIT License](LICENSE).

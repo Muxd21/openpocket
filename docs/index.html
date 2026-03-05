@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenPocket | 24/7 AI Server on Your Android</title>
-    <meta name="description" content="Turn your old phone into a production-grade 24/7 AI server. One command. Native speed. Mission Control integrated.">
+    <meta name="description"
+        content="Turn your old phone into a production-grade 24/7 AI server. One command. Native speed. Mission Control integrated.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #00f2ff;
@@ -41,7 +45,7 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: 
+            background:
                 radial-gradient(circle at 20% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 80% 80%, rgba(0, 242, 255, 0.1) 0%, transparent 40%);
         }
@@ -72,6 +76,7 @@
         .logo span {
             background: linear-gradient(to right, var(--primary), var(--secondary));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -104,8 +109,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
@@ -167,7 +179,7 @@
             border-radius: 16px;
             border: 1px solid var(--glass-border);
             overflow: hidden;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
         }
 
         .terminal-header {
@@ -178,10 +190,23 @@
             align-items: center;
         }
 
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .red { background: #ff5f56; }
-        .yellow { background: #ffbd2e; }
-        .green { background: #27c93f; }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .red {
+            background: #ff5f56;
+        }
+
+        .yellow {
+            background: #ffbd2e;
+        }
+
+        .green {
+            background: #27c93f;
+        }
 
         .terminal-body {
             padding: 1.5rem;
@@ -190,8 +215,13 @@
             color: #d1d1d1;
         }
 
-        .command { color: var(--primary); }
-        .comment { color: #666; }
+        .command {
+            color: var(--primary);
+        }
+
+        .comment {
+            color: #666;
+        }
 
         .features {
             display: grid;
@@ -233,14 +263,21 @@
             margin-bottom: 8rem;
         }
 
-        .mc-content { flex: 1; }
-        .mc-image { 
-            flex: 1; 
+        .mc-content {
+            flex: 1;
+        }
+
+        .mc-image {
+            flex: 1;
             border-radius: 20px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
         }
-        .mc-image img { width: 100%; display: block; }
+
+        .mc-image img {
+            width: 100%;
+            display: block;
+        }
 
         footer {
             padding: 4rem 2rem;
@@ -250,15 +287,25 @@
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 3rem; }
-            .cta-group { flex-direction: column; }
-            .mc-section { flex-direction: column; text-align: center; }
+            h1 {
+                font-size: 3rem;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
+
+            .mc-section {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="gradient-bg"></div>
-    
+
     <nav>
         <div class="logo">
             <img src="images/logo.png" alt="OpenPocket Logo">
@@ -274,7 +321,8 @@
     <main>
         <section class="hero">
             <h1>Your old phone,<br>now an <span>AI Powerhouse.</span></h1>
-            <p>Deploy a 24/7 production-grade AI agent server natively on Android. Zero bloat. Full mission control. One command.</p>
+            <p>Deploy a 24/7 production-grade AI agent server natively on Android. Zero bloat. Full mission control. One
+                command.</p>
             <div class="cta-group">
                 <a href="https://github.com/Muxd21/openpocket" class="btn btn-primary">Star on GitHub</a>
                 <a href="#install" class="btn btn-secondary">View Documentation</a>
@@ -289,7 +337,8 @@
                 </div>
                 <div class="terminal-body">
                     <div class="comment"># Turn your device into a server in 60 seconds</div>
-                    <div><span class="command">curl</span> -sL https://muxd21.me/openpocket/bootstrap.sh | bash</div>
+                    <div><span class="command">curl</span> -sL
+                        https://raw.githubusercontent.com/Muxd21/openpocket/main/bootstrap.sh | bash</div>
                 </div>
             </div>
         </section>
@@ -297,11 +346,13 @@
         <section class="features" id="features">
             <div class="feature-card">
                 <h3>Native Speed</h3>
-                <p>No proot-distro, no virtualization. We run Node.js directly on Bionic with a lightweight glibc linker for 10x faster startup.</p>
+                <p>No proot-distro, no virtualization. We run Node.js directly on Bionic with a lightweight glibc linker
+                    for 10x faster startup.</p>
             </div>
             <div class="feature-card">
                 <h3>24/7 Uptime</h3>
-                <p>Automatic wakelock management, battery protection guidance, and boot auto-start ensure your AI is always ready.</p>
+                <p>Automatic wakelock management, battery protection guidance, and boot auto-start ensure your AI is
+                    always ready.</p>
             </div>
             <div class="feature-card">
                 <h3>Pocket Sized</h3>
@@ -312,12 +363,16 @@
         <section class="mc-section">
             <div class="mc-content">
                 <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;">Built-in <span>Mission Control</span></h2>
-                <p style="font-size: 1.2rem; color: var(--text-dim); margin-bottom: 2rem;">Manage your agent fleet, track costs, and orchestrate workflows from a stunning web dashboard. Every installation comes with Mission Control pre-configured.</p>
+                <p style="font-size: 1.2rem; color: var(--text-dim); margin-bottom: 2rem;">Manage your agent fleet,
+                    track costs, and orchestrate workflows from a stunning web dashboard. Every installation comes with
+                    Mission Control pre-configured.</p>
                 <div style="display: flex; gap: 1rem;">
-                    <div style="background: var(--glass); padding: 1rem; border-radius: 12px; border: 1px solid var(--glass-border);">
+                    <div
+                        style="background: var(--glass); padding: 1rem; border-radius: 12px; border: 1px solid var(--glass-border);">
                         <strong>28+ Panels</strong>
                     </div>
-                    <div style="background: var(--glass); padding: 1rem; border-radius: 12px; border: 1px solid var(--glass-border);">
+                    <div
+                        style="background: var(--glass); padding: 1rem; border-radius: 12px; border: 1px solid var(--glass-border);">
                         <strong>Real-time Logs</strong>
                     </div>
                 </div>
@@ -329,7 +384,7 @@
     </main>
 
     <footer>
-        <p>Built with ⚡ by Muxd21 & Jarvis (RTX⚡)</p>
+        <p>Built with ⚡ by Muxd21</p>
         <p style="margin-top: 1rem; font-size: 0.9rem;">&copy; 2026 OpenPocket Project. MIT License.</p>
     </footer>
 
@@ -345,4 +400,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -61,9 +61,9 @@ check ".bashrc configured"        "grep -q 'OpenClaw Pocket Server' ~/.bashrc"
 warn_check "Boot script exists"    "[ -f ~/.termux/boot/openclaw-boot.sh ]"
 
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "------------------------------"
 echo -e "  ${GREEN}PASS${NC}: $PASS  ${RED}FAIL${NC}: $FAIL  ${YELLOW}WARN${NC}: $WARN"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "------------------------------"
 
 if [ "$FAIL" -gt 0 ]; then
   echo -e "${RED}Some checks failed. Review the output above.${NC}"

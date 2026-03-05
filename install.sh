@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # ============================================================
 #  OpenClaw Pocket Server — Master Installer
-#  By Jarvis (RTX⚡) for Muxd21
+#  By Muxd21
 #  All-in-one: deps → patches → openclaw → ssh → tmux → boot
 # ============================================================
 set -euo pipefail
@@ -31,9 +31,7 @@ log_info() { echo -e "${CYAN}[INFO]${NC} $1"; }
 
 step() {
     echo ""
-    echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${BOLD}  [$1] $2${NC}"
-    echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}───${NC} ${BOLD}[$1] $2${NC} ${CYAN}───${NC}"
 }
 
 TOTAL_STEPS=10
@@ -43,35 +41,30 @@ FAILED=0
 MAGENTA='\033[0;35m'
 echo ""
 echo -e "${MAGENTA}${BOLD}"
-echo "  ╔═══════════════════════════════════════════════════════════╗"
-echo "  ║          -: J A R V I S  (R T X ⚡) :-                   ║"
-echo "  ║   ─────────────────────────────────────────────────      ║"
-echo "  ║   🦞 OpenClaw 24/7 Pocket Server Installer 🦞           ║"
-echo "  ║   One Command. Full AI Server. Android.                  ║"
-echo "  ║                                                          ║"
-echo "  ║   Make any Android phone into a production-grade         ║"
-echo "  ║   24/7 pocket server.                                    ║"
-echo "  ╚═══════════════════════════════════════════════════════════╝"
+echo "  ┌───────────────────────────────────────────────────┐"
+echo "  │        🛰️  OPENPOCKET AI SERVER INSTALLER         │"
+echo "  │        Native. Professional. 24/7 Server.         │"
+echo "  └───────────────────────────────────────────────────┘"
 echo -e "${NC}"
-echo -e "  ${CYAN}Built by ${BOLD}Muxd21${NC} ${CYAN}&${NC} ${BOLD}${MAGENTA}Jarvis (RTX⚡)${NC}"
+echo -e "  ${CYAN}By ${BOLD}Muxd21${NC}"
 echo -e "  ${YELLOW}github.com/Muxd21/openpocket${NC}"
 echo ""
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 1: Environment Check
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "1/$TOTAL_STEPS" "Environment Check"
 bash "$SCRIPT_DIR/scripts/check-env.sh" || { log_fail "Environment check failed"; exit 1; }
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 2: Install Dependencies
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "2/$TOTAL_STEPS" "Installing Dependencies"
 bash "$SCRIPT_DIR/scripts/install-deps.sh" || { log_fail "Dependency install failed"; exit 1; }
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 3: Setup Environment Variables
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "3/$TOTAL_STEPS" "Configuring Environment"
 bash "$SCRIPT_DIR/scripts/setup-env.sh" || { log_fail "Environment setup failed"; exit 1; }
 
@@ -88,9 +81,9 @@ export CMAKE_C_FLAGS="-include $HOME/.openclaw-android/patches/termux-compat.h"
 export GYP_DEFINES="OS=linux android_ndk_path=''"
 export CPATH="$PREFIX/include/glib-2.0:$PREFIX/lib/glib-2.0/include:${CPATH:-}"
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 4: Install OpenClaw + Apply Patches
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "4/$TOTAL_STEPS" "Installing OpenClaw"
 
 # Copy patches first (needed during npm install for native builds)
@@ -121,9 +114,9 @@ fi
 log_info "Applying patches..."
 bash "$SCRIPT_DIR/patches/apply-patches.sh"
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 4.5: Install Mission Control
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "4.5/$TOTAL_STEPS" "Installing Mission Control"
 log_info "Installing pnpm..."
 if npm install -g pnpm; then
@@ -181,9 +174,9 @@ with open(path, 'w') as f:
   cd - >/dev/null
 fi
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 5: Build Sharp (Image Processing)
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "5/$TOTAL_STEPS" "Building sharp (Image Processing)"
 
 # Fix: create ar → llvm-ar symlink if missing
@@ -209,31 +202,31 @@ else
   log_warn "sharp module not found, skipping"
 fi
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 6: Setup SSH Server
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "6/$TOTAL_STEPS" "Setting Up SSH Server"
 bash "$SCRIPT_DIR/scripts/setup-ssh.sh" "$SSH_PASSWORD" || { log_warn "SSH setup had issues"; }
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 7: Setup Termux:Boot Auto-Start
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "7/$TOTAL_STEPS" "Configuring Auto-Start (Termux:Boot)"
 bash "$SCRIPT_DIR/scripts/setup-boot.sh" || { log_warn "Boot script setup had issues"; }
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 8: Verification
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "8/$TOTAL_STEPS" "Verifying Installation"
 bash "$SCRIPT_DIR/tests/verify-install.sh" || true
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  DONE — Installation Summary
-# ──────────────────────────────────────────────
+# --- Step Section ---
 echo ""
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}----------------------------------------${NC}"
 echo -e "${GREEN}${BOLD}  🦞 INSTALLATION COMPLETE!${NC}"
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}----------------------------------------${NC}"
 echo ""
 echo -e "  OpenClaw version : ${CYAN}$(openclaw --version 2>/dev/null || echo 'unknown')${NC}"
 echo -e "  Node.js version  : ${CYAN}$(node -v 2>/dev/null)${NC}"
@@ -245,12 +238,12 @@ echo -e "  Password : ${CYAN}${SSH_PASSWORD}${NC} (change with: ${YELLOW}passwd$
 echo -e "  Connect  : ${CYAN}ssh -p 8022 \$(whoami)@<phone-ip>${NC}"
 echo ""
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 9: OpenClaw Onboarding (Interactive)
-# ──────────────────────────────────────────────
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+# --- Step Section ---
+echo -e "${BOLD}----------------------------------------${NC}"
 echo -e "${BOLD}  [9] OpenClaw Onboarding${NC}"
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}----------------------------------------${NC}"
 echo ""
 echo -e "  ${YELLOW}Configure your AI provider, channels, and skills.${NC}"
 echo -e "  ${CYAN}Follow the prompts below — this takes ~2 minutes.${NC}"
@@ -292,9 +285,9 @@ log_ok "Gateway configured on 0.0.0.0 with token: ${GATEWAY_TOKEN:-generated}"
 
 log_ok "Onboarding and configuration complete!"
 
-# ──────────────────────────────────────────────
+# --- Step Section ---
 #  STEP 10: Launching AI Command Center
-# ──────────────────────────────────────────────
+# --- Step Section ---
 step "10/10" "Launching AI Command Center"
 
 # Create a clean unified tmux session
@@ -327,4 +320,4 @@ echo -e "     Cmd:   ${CYAN}ssh -p 8022 ${USER_NAME}@${IP}${NC}"
 echo -e "     Pass:  ${CYAN}${SSH_PASSWORD}${NC}\n"
 
 echo -e "  ${DIM}Docs: https://muxd21.github.io/openpocket${NC}"
-echo -e "  ${BOLD}${MAGENTA}Built for Muxd21 by Jarvis (RTX⚡)${NC}\n"
+echo -e "  ${BOLD}${MAGENTA}Built for Muxd21${NC}\n"

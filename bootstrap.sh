@@ -24,7 +24,7 @@ echo "  │        🛰️  OPENPOCKET AI SERVER BOOTSTRAP         │"
 echo "  │        Native. Professional. 24/7 Agent.          │"
 echo "  └───────────────────────────────────────────────────┘"
 echo -e "${NC}"
-echo -e "  ${CYAN}By ${BOLD}Muxd21${NC} ${CYAN}&${NC} ${BOLD}Jarvis (RTX⚡)${NC}"
+echo -e "  ${CYAN}By ${BOLD}Muxd21${NC}"
 echo -e "  ${YELLOW}github.com/Muxd21/openpocket${NC}"
 echo ""
 
