@@ -279,12 +279,15 @@ if os.path.exists(config_path):
         old_token = gateway.pop('token', None)
         auth['token'] = old_token or ('op_' + secrets.token_hex(16))
     
-    # IMPORTANT: Remove 'listen', 'host', 'port' from JSON to prevent "Unrecognized key" errors.
-    # We now set these via OPENCLAW_GATEWAY_HOST/PORT environment variables instead.
+    # IMPORTANT: Remove unknown keys to prevent "Unrecognized key" errors.
     gateway.pop('listen', None)
     gateway.pop('host', None)
     gateway.pop('port', None)
     gateway.pop('token', None)
+    
+    # Allow LAN binding without explicit origins (required for --bind lan)
+    control_ui = gateway.setdefault('controlUi', {})
+    control_ui['dangerouslyAllowHostHeaderOriginFallback'] = True
     
     with open(config_path, 'w') as f:
         json.dump(config, f, indent=2)
@@ -311,8 +314,9 @@ sleep 5
 
 # Start Mission Control:
 #  1. Unset NODE_OPTIONS (the -r flag breaks Next.js)
-#  2. Use next dev --hostname 0.0.0.0 --port 3000 for network access
-tmux new-window -t OpenClaw -n "mission-control" "cd \$HOME/mission-control && unset NODE_OPTIONS && npx next dev --hostname 0.0.0.0 --port 3000"
+#  2. Use --no-turbopack (Turbopack WASM bindings don't support createProject on Android)
+#  3. Bind to 0.0.0.0 for Tailscale/LAN access
+tmux new-window -t OpenClaw -n "mission-control" "cd \$HOME/mission-control && unset NODE_OPTIONS && npx next dev --hostname 0.0.0.0 --port 3000 --no-turbopack"
 
 log_ok "AI Server (Engine + Dashboard) is now running natively."
 
