@@ -278,9 +278,9 @@ if os.path.exists(config_path):
         json.dump(config, f, indent=2)
     
     print(f'TOKEN_FOUND:{config['gateway']['token']}')
-" > /tmp/oc_token_info || true
+" > "$TMPDIR/oc_token_info" || true
 
-GATEWAY_TOKEN=$(grep 'TOKEN_FOUND:' /tmp/oc_token_info | cut -d: -f2)
+GATEWAY_TOKEN=$(grep 'TOKEN_FOUND:' "$TMPDIR/oc_token_info" | cut -d: -f2)
 log_ok "Gateway configured on 0.0.0.0 with token: ${GATEWAY_TOKEN:-generated}"
 
 log_ok "Onboarding and configuration complete!"
