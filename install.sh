@@ -227,10 +227,26 @@ echo -e "  ${CYAN}Follow the prompts below — this takes ~2 minutes.${NC}"
 echo ""
 
 # Run onboard interactively — user configures their setup
-openclaw onboard
+openclaw onboard || true
 
-echo ""
-log_ok "Onboarding complete!"
+# Fix: Ensure gateway.mode is set to local to prevent start blocking
+log_info "Auto-configuring local mode..."
+python3 -c "
+import json, os
+config_path = os.path.expanduser('~/.openclaw/openclaw.json')
+if os.path.exists(config_path):
+    with open(config_path, 'r') as f:
+        try:
+            config = json.load(f)
+        except:
+            config = {}
+    config['gateway'] = config.get('gateway', {})
+    config['gateway']['mode'] = 'local'
+    with open(config_path, 'w') as f:
+        json.dump(config, f, indent=2)
+" || true
+
+log_ok "Onboarding and configuration complete!"
 
 # ──────────────────────────────────────────────
 #  STEP 10: Auto-Start Gateway in tmux
@@ -274,20 +290,21 @@ echo "  ║                                                          ║"
 echo "  ╚═══════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 echo -e "  ${GREEN}Gateway  : ${BOLD}Running in tmux session 'OpenClaw'${NC}"
+echo -e "  ${GREEN}Dashboard: ${BOLD}Mission Control live at http://localhost:3000${NC}"
 echo ""
 echo -e "  ${BOLD}SSH Command (copy-paste on your PC):${NC}"
 echo -e "  ${CYAN}${BOLD}ssh -p 8022 ${USER_NAME}@${IP}${NC}"
 echo ""
-echo -e "  ${GREEN}Password : ${BOLD}${SSH_PASSWORD}${NC} ${YELLOW}(change karne ke liye repo guide check karein)${NC}"
+echo -e "  ${GREEN}Password : ${BOLD}${SSH_PASSWORD}${NC} ${YELLOW}(change with: passwd)${NC}"
 echo ""
 echo -e "  ${BOLD}Useful Commands:${NC}"
-echo -e "  ${YELLOW}tmux attach -t OpenClaw${NC}    — View gateway logs"
+echo -e "  ${YELLOW}tmux attach -t OpenClaw${NC}    — View gateway & dashboard logs"
+echo -e "  ${YELLOW}Ctrl+B then N${NC}              — Switch between Gateway and Dashboard"
 echo -e "  ${YELLOW}Ctrl+B then D${NC}              — Detach (server keeps running)"
 echo -e "  ${YELLOW}openclaw status${NC}            — Check server health"
 echo -e "  ${YELLOW}openclaw tui${NC}               — Chat with your AI"
 echo -e "  ${YELLOW}passwd${NC}                     — Change SSH password"
 echo ""
-echo -e "  ${CYAN}Docs: https://github.com/Muxd21/openpocket${NC}"
+echo -e "  ${CYAN}Docs: https://muxd21.github.io/openpocket${NC}"
 echo -e "  ${MAGENTA}${BOLD}Built by Muxd21 & Jarvis (RTX⚡)${NC}"
 echo ""
-
