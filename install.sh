@@ -229,10 +229,10 @@ echo ""
 # Run onboard interactively — user configures their setup
 openclaw onboard || true
 
-# Fix: Ensure gateway.mode is set to local to prevent start blocking
-log_info "Auto-configuring local mode..."
+# Fix: Ensure gateway.mode is set to local and binds to 0.0.0.0 for Tailscale
+log_info "Configuring OpenClaw for network access (0.0.0.0)..."
 python3 -c "
-import json, os
+import json, os, secrets
 config_path = os.path.expanduser('~/.openclaw/openclaw.json')
 if os.path.exists(config_path):
     with open(config_path, 'r') as f:
@@ -240,11 +240,25 @@ if os.path.exists(config_path):
             config = json.load(f)
         except:
             config = {}
+    
+    # Force Gateway Config
     config['gateway'] = config.get('gateway', {})
     config['gateway']['mode'] = 'local'
+    config['gateway']['host'] = '0.0.0.0'
+    config['gateway']['port'] = 18789
+    
+    # Ensure a token exists for Mission Control / API access
+    if 'token' not in config['gateway'] or not config['gateway']['token']:
+        config['gateway']['token'] = 'op_' + secrets.token_hex(16)
+    
     with open(config_path, 'w') as f:
         json.dump(config, f, indent=2)
-" || true
+    
+    print(f'TOKEN_FOUND:{config['gateway']['token']}')
+" > /tmp/oc_token_info || true
+
+GATEWAY_TOKEN=$(grep 'TOKEN_FOUND:' /tmp/oc_token_info | cut -d: -f2)
+log_ok "Gateway configured on 0.0.0.0 with token: ${GATEWAY_TOKEN:-generated}"
 
 log_ok "Onboarding and configuration complete!"
 
@@ -256,13 +270,11 @@ echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BOLD}  [10] Starting Gateway in tmux${NC}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-# Kill any existing session
-tmux kill-session -t OpenClaw 2>/dev/null || true
-
 # Create tmux session with gateway running
 tmux new-session -d -s OpenClaw "source ~/.bashrc && openclaw gateway"
-sleep 3
-tmux new-window -t OpenClaw -n "mission-control" "cd $HOME/mission-control && pnpm start"
+sleep 5
+# Start Mission Control binding to 0.0.0.0 for Tailscale access
+tmux new-window -t OpenClaw -n "mission-control" "cd $HOME/mission-control && PORT=3000 HOST=0.0.0.0 pnpm start"
 
 if tmux has-session -t OpenClaw 2>/dev/null; then
   log_ok "tmux session 'OpenClaw' created with gateway and mission-control running!"
@@ -289,8 +301,9 @@ echo "  ║   🦞 YOUR 24/7 AI SERVER IS LIVE! 🦞                    ║"
 echo "  ║                                                          ║"
 echo "  ╚═══════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
-echo -e "  ${GREEN}Gateway  : ${BOLD}Running in tmux session 'OpenClaw'${NC}"
-echo -e "  ${GREEN}Dashboard: ${BOLD}Mission Control live at http://localhost:3000${NC}"
+echo -e "  ${GREEN}Gateway  : ${BOLD}Running in tmux session 'OpenClaw' (Bound to 0.0.0.0)${NC}"
+echo -e "  ${GREEN}Dashboard: ${BOLD}Mission Control live at http://${IP}:3000${NC}"
+echo -e "  ${GREEN}API Token: ${BOLD}${GATEWAY_TOKEN:-See ~/.openclaw/openclaw.json}${NC}"
 echo ""
 echo -e "  ${BOLD}SSH Command (copy-paste on your PC):${NC}"
 echo -e "  ${CYAN}${BOLD}ssh -p 8022 ${USER_NAME}@${IP}${NC}"
