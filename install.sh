@@ -304,11 +304,15 @@ step "10/10" "Launching AI Command Center"
 
 # Create a clean unified tmux session
 tmux kill-session -t OpenClaw 2>/dev/null || true
-# Start Gateway with explicit environment variables
-tmux new-session -d -s OpenClaw "export OPENCLAW_GATEWAY_HOST=0.0.0.0 && export OPENCLAW_GATEWAY_PORT=18789 && source ~/.bashrc && openclaw gateway"
+
+# Start Gateway with --bind lan (binds to 0.0.0.0 for Tailscale/LAN access)
+tmux new-session -d -s OpenClaw "source ~/.bashrc && openclaw gateway --bind lan"
 sleep 5
-# Start Mission Control with explicit token and binding
-tmux new-window -t OpenClaw -n "mission-control" "cd \$HOME/mission-control && export HOST=0.0.0.0 && export PORT=3000 && export OPENCLAW_GATEWAY_TOKEN=$GATEWAY_TOKEN && pnpm start"
+
+# Start Mission Control:
+#  1. Unset NODE_OPTIONS (the -r flag breaks Next.js)
+#  2. Use next dev --hostname 0.0.0.0 --port 3000 for network access
+tmux new-window -t OpenClaw -n "mission-control" "cd \$HOME/mission-control && unset NODE_OPTIONS && npx next dev --hostname 0.0.0.0 --port 3000"
 
 log_ok "AI Server (Engine + Dashboard) is now running natively."
 
