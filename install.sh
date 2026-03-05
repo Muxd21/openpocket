@@ -293,62 +293,38 @@ log_ok "Gateway configured on 0.0.0.0 with token: ${GATEWAY_TOKEN:-generated}"
 log_ok "Onboarding and configuration complete!"
 
 # ──────────────────────────────────────────────
-#  STEP 10: Auto-Start Gateway in tmux
+#  STEP 10: Launching AI Command Center
 # ──────────────────────────────────────────────
-echo ""
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BOLD}  [10] Starting Gateway in tmux${NC}"
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+step "10/10" "Launching AI Command Center"
 
-# Create tmux session with gateway running
+# Create a clean unified tmux session
+tmux kill-session -t OpenClaw 2>/dev/null || true
 tmux new-session -d -s OpenClaw "source ~/.bashrc && openclaw gateway"
 sleep 5
-# Start Mission Control binding to 0.0.0.0 for Tailscale access
-# Use export to ensure environment is inherited correctly in the subshell
 tmux new-window -t OpenClaw -n "mission-control" "cd \$HOME/mission-control && export HOST=0.0.0.0 && export PORT=3000 && pnpm start"
 
-if tmux has-session -t OpenClaw 2>/dev/null; then
-  log_ok "tmux session 'OpenClaw' created with gateway and mission-control running!"
-else
-  log_warn "tmux session creation failed. Start manually:"
-  echo -e "  ${YELLOW}tmux new-session -s OpenClaw${NC}"
-  echo -e "  ${YELLOW}openclaw gateway${NC}"
-  echo -e "  ${YELLOW}tmux new-window -n mission-control \"cd ~/mission-control && pnpm start\"${NC}"
-fi
+log_ok "AI Server (Engine + Dashboard) is now running natively."
 
 # ──────────────────────────────────────────────
-#  ALL DONE — BOOM! 💥
+#  ALL DONE — WELCOME TO GREATNESS 💥
 # ──────────────────────────────────────────────
 USER_NAME=$(whoami)
-IP=$(ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1 || \
-     ifconfig wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1 || \
-     ifconfig wlan0 2>/dev/null | grep 'inet ' | awk '{print $2}' | head -1 || \
-     echo "<phone-ip>")
-echo ""
-echo -e "${MAGENTA}${BOLD}"
-echo "  ╔═══════════════════════════════════════════════════════════╗"
-echo "  ║                                                          ║"
-echo "  ║   🦞 YOUR 24/7 AI SERVER IS LIVE! 🦞                    ║"
-echo "  ║                                                          ║"
-echo "  ╚═══════════════════════════════════════════════════════════╝"
-echo -e "${NC}"
-echo -e "  ${GREEN}Gateway  : ${BOLD}Running in tmux session 'OpenClaw' (Bound to 0.0.0.0)${NC}"
-echo -e "  ${GREEN}Dashboard: ${BOLD}Mission Control live at http://${IP}:3000${NC}"
-echo -e "  ${GREEN}API Token: ${BOLD}${GATEWAY_TOKEN:-See ~/.openclaw/openclaw.json}${NC}"
-echo ""
-echo -e "  ${BOLD}SSH Command (copy-paste on your PC):${NC}"
-echo -e "  ${CYAN}${BOLD}ssh -p 8022 ${USER_NAME}@${IP}${NC}"
-echo ""
-echo -e "  ${GREEN}Password : ${BOLD}${SSH_PASSWORD}${NC} ${YELLOW}(change with: passwd)${NC}"
-echo ""
-echo -e "  ${BOLD}Useful Commands:${NC}"
-echo -e "  ${YELLOW}tmux attach -t OpenClaw${NC}    — View gateway & dashboard logs"
-echo -e "  ${YELLOW}Ctrl+B then N${NC}              — Switch between Gateway and Dashboard"
-echo -e "  ${YELLOW}Ctrl+B then D${NC}              — Detach (server keeps running)"
-echo -e "  ${YELLOW}openclaw status${NC}            — Check server health"
-echo -e "  ${YELLOW}openclaw tui${NC}               — Chat with your AI"
-echo -e "  ${YELLOW}passwd${NC}                     — Change SSH password"
-echo ""
-echo -e "  ${CYAN}Docs: https://muxd21.github.io/openpocket${NC}"
-echo -e "  ${MAGENTA}${BOLD}Built by Muxd21 & Jarvis (RTX⚡)${NC}"
-echo ""
+IP=$(ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1 || echo "<phone-ip>")
+
+echo -e "\n${BOLD}${MAGENTA}  🛰️  OPENPOCKET AI SERVER IS ONLINE${NC}"
+echo -e "  ${CYAN}Engine: OpenClaw | Dashboard: Mission Control${NC}\n"
+
+echo -e "  ${BOLD}1. ACCESS DASHBOARD${NC}"
+echo -e "     URL:   ${GREEN}http://${IP}:3000${NC}"
+echo -e "     Token: ${YELLOW}${GATEWAY_TOKEN:-See config}${NC}"
+
+echo -e "\n  ${BOLD}2. MANAGE SERVER${NC}"
+echo -e "     Logs:  ${YELLOW}tmux attach -t OpenClaw${NC} (Ctrl+B, N to switch)"
+echo -e "     Chat:  ${YELLOW}openclaw tui${NC}"
+
+echo -e "\n  ${BOLD}3. REMOTE ACCESS (SSH)${NC}"
+echo -e "     Cmd:   ${CYAN}ssh -p 8022 ${USER_NAME}@${IP}${NC}"
+echo -e "     Pass:  ${CYAN}${SSH_PASSWORD}${NC}\n"
+
+echo -e "  ${DIM}Docs: https://muxd21.github.io/openpocket${NC}"
+echo -e "  ${BOLD}${MAGENTA}Built for Muxd21 by Jarvis (RTX⚡)${NC}\n"
