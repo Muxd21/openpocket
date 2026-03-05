@@ -80,6 +80,8 @@ export CMAKE_CXX_FLAGS="-include $HOME/.openclaw-android/patches/termux-compat.h
 export CMAKE_C_FLAGS="-include $HOME/.openclaw-android/patches/termux-compat.h"
 export GYP_DEFINES="OS=linux android_ndk_path=''"
 export CPATH="$PREFIX/include/glib-2.0:$PREFIX/lib/glib-2.0/include:${CPATH:-}"
+export OPENCLAW_GATEWAY_HOST="0.0.0.0"
+export OPENCLAW_GATEWAY_PORT="18789"
 
 # --- Step Section ---
 #  STEP 4: Install OpenClaw + Apply Patches
@@ -270,19 +272,16 @@ if os.path.exists(config_path):
     gateway = config.setdefault('gateway', {})
     gateway['mode'] = 'local'
     
-    # Listen Config
-    listen = gateway.setdefault('listen', {})
-    listen['host'] = '0.0.0.0'
-    listen['port'] = 18789
-    
-    # Auth Config
+    # Auth Config (OpenClaw v2026 requires gateway.auth.token)
     auth = gateway.setdefault('auth', {})
     if 'token' not in auth or not auth['token']:
         # Migrate old token if it exists
         old_token = gateway.pop('token', None)
         auth['token'] = old_token or ('op_' + secrets.token_hex(16))
     
-    # Remove deprecated keys that cause invalid config errors
+    # IMPORTANT: Remove 'listen', 'host', 'port' from JSON to prevent "Unrecognized key" errors.
+    # We now set these via OPENCLAW_GATEWAY_HOST/PORT environment variables instead.
+    gateway.pop('listen', None)
     gateway.pop('host', None)
     gateway.pop('port', None)
     gateway.pop('token', None)
@@ -305,9 +304,11 @@ step "10/10" "Launching AI Command Center"
 
 # Create a clean unified tmux session
 tmux kill-session -t OpenClaw 2>/dev/null || true
-tmux new-session -d -s OpenClaw "source ~/.bashrc && openclaw gateway"
+# Start Gateway with explicit environment variables
+tmux new-session -d -s OpenClaw "export OPENCLAW_GATEWAY_HOST=0.0.0.0 && export OPENCLAW_GATEWAY_PORT=18789 && source ~/.bashrc && openclaw gateway"
 sleep 5
-tmux new-window -t OpenClaw -n "mission-control" "cd \$HOME/mission-control && export HOST=0.0.0.0 && export PORT=3000 && pnpm start"
+# Start Mission Control with explicit token and binding
+tmux new-window -t OpenClaw -n "mission-control" "cd \$HOME/mission-control && export HOST=0.0.0.0 && export PORT=3000 && export OPENCLAW_GATEWAY_TOKEN=$GATEWAY_TOKEN && pnpm start"
 
 log_ok "AI Server (Engine + Dashboard) is now running natively."
 

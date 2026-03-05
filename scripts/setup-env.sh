@@ -43,6 +43,10 @@ export GYP_DEFINES="OS=linux android_ndk_path=''"
 # Fix: Skip OpenClaw's broken --disable-warning respawn on Node v24+
 export OPENCLAW_NODE_OPTIONS_READY=1
 
+# OpenClaw Networking (Binds to 0.0.0.0 for Tailscale)
+export OPENCLAW_GATEWAY_HOST="0.0.0.0"
+export OPENCLAW_GATEWAY_PORT="18789"
+
 # glib/vips headers for sharp builds
 export CPATH="\$PREFIX/include/glib-2.0:\$PREFIX/lib/glib-2.0/include:\${CPATH:-}"
 $MARKER_END
