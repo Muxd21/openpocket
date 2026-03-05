@@ -253,7 +253,9 @@ echo ""
 openclaw onboard || true
 
 # Fix: Ensure gateway.mode is set to local and binds to 0.0.0.0 for Tailscale
-log_info "Configuring OpenClaw for network access (0.0.0.0)..."
+log_info "Configuring OpenClaw (Latest Schema)..."
+openclaw doctor --fix 2>/dev/null || true # Auto-migrate if possible
+
 python3 -c "
 import json, os, secrets
 config_path = os.path.expanduser('~/.openclaw/openclaw.json')
@@ -264,24 +266,35 @@ if os.path.exists(config_path):
         except:
             config = {}
     
-    # Force Gateway Config
-    config['gateway'] = config.get('gateway', {})
-    config['gateway']['mode'] = 'local'
-    config['gateway']['host'] = '0.0.0.0'
-    config['gateway']['port'] = 18789
+    # Force Gateway Config (Latest v2026 Schema)
+    gateway = config.setdefault('gateway', {})
+    gateway['mode'] = 'local'
     
-    # Ensure a token exists for Mission Control / API access
-    if 'token' not in config['gateway'] or not config['gateway']['token']:
-        config['gateway']['token'] = 'op_' + secrets.token_hex(16)
+    # Listen Config
+    listen = gateway.setdefault('listen', {})
+    listen['host'] = '0.0.0.0'
+    listen['port'] = 18789
+    
+    # Auth Config
+    auth = gateway.setdefault('auth', {})
+    if 'token' not in auth or not auth['token']:
+        # Migrate old token if it exists
+        old_token = gateway.pop('token', None)
+        auth['token'] = old_token or ('op_' + secrets.token_hex(16))
+    
+    # Remove deprecated keys that cause invalid config errors
+    gateway.pop('host', None)
+    gateway.pop('port', None)
+    gateway.pop('token', None)
     
     with open(config_path, 'w') as f:
         json.dump(config, f, indent=2)
     
-    print(f'TOKEN_FOUND:{config['gateway']['token']}')
+    print(f'TOKEN_FOUND:{auth['token']}')
 " > "$TMPDIR/oc_token_info" || true
 
 GATEWAY_TOKEN=$(grep 'TOKEN_FOUND:' "$TMPDIR/oc_token_info" | cut -d: -f2)
-log_ok "Gateway configured on 0.0.0.0 with token: ${GATEWAY_TOKEN:-generated}"
+log_ok "Gateway (0.0.0.0) configured with token: ${GATEWAY_TOKEN:-generated}"
 
 log_ok "Onboarding and configuration complete!"
 
