@@ -145,9 +145,39 @@ if [ -d "$HOME/mission-control" ]; then
   cd "$HOME/mission-control"
   log_info "Running pnpm install for Mission Control..."
   pnpm install || log_warn "pnpm install returned non-zero"
+  
+  # Force binding to 0.0.0.0 in .env for Tailscale
   if [ ! -f ".env" ]; then
     cp .env.example .env 2>/dev/null || true
   fi
+  
+  # Ensure HOST and PORT are set correctly in .env
+  # We use python to safely handle multi-platform newline/quote issues
+  python3 -c "
+import os
+path = '.env'
+lines = []
+if os.path.exists(path):
+    with open(path, 'r') as f:
+        lines = f.readlines()
+new_lines = []
+found_host = False
+found_port = False
+for line in lines:
+    if line.startswith('HOST='):
+        new_lines.append('HOST=0.0.0.0\n')
+        found_host = True
+    elif line.startswith('PORT='):
+        new_lines.append('PORT=3000\n')
+        found_port = True
+    else:
+        new_lines.append(line)
+if not found_host: new_lines.append('HOST=0.0.0.0\n')
+if not found_port: new_lines.append('PORT=3000\n')
+with open(path, 'w') as f:
+    f.writelines(new_lines)
+" || true
+  
   cd - >/dev/null
 fi
 
@@ -274,7 +304,8 @@ echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━�
 tmux new-session -d -s OpenClaw "source ~/.bashrc && openclaw gateway"
 sleep 5
 # Start Mission Control binding to 0.0.0.0 for Tailscale access
-tmux new-window -t OpenClaw -n "mission-control" "cd $HOME/mission-control && PORT=3000 HOST=0.0.0.0 pnpm start"
+# Use export to ensure environment is inherited correctly in the subshell
+tmux new-window -t OpenClaw -n "mission-control" "cd \$HOME/mission-control && export HOST=0.0.0.0 && export PORT=3000 && pnpm start"
 
 if tmux has-session -t OpenClaw 2>/dev/null; then
   log_ok "tmux session 'OpenClaw' created with gateway and mission-control running!"
